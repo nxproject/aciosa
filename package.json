@@ -1,0 +1,19 @@
+{
+  "name": "costa-rica-volunteer-network",
+  "version": "1.0.0",
+  "description": "Node.js version of the Costa Rica volunteer network HTML pages.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "volunteer",
+    "costa-rica",
+    "node"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "mysql2": "^3.22.5"
+  }
+}

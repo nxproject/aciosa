@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. Build App",
+      "type": "shell",
+      "command": "docker compose -f compose.yaml build --no-cache app",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "2. Push App",
+      "type": "shell",
+      "command": "docker push nxionehub/aciosa:latest",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Make it so",
+      "dependsOrder": "sequence",
+      "dependsOn": ["1. Build App", "2. Push App"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "dev",
+      "problemMatcher": [],
+      "label": "npm: dev",
+      "detail": "node server.js"
+    }
+  ]
+}

@@ -1,0 +1,375 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard de Proyectos - Pura Vida Voluntarios</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=Atkinson+Hyperlegible+Next:wght@400;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@100..900&family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e1e3e4",
+                    "on-primary-container": "#f6fff3",
+                    "tertiary-fixed-dim": "#a7c8ff",
+                    "secondary": "#994700",
+                    "surface-container-highest": "#e1e3e4",
+                    "background": "#f8f9fa",
+                    "on-secondary-fixed-variant": "#753400",
+                    "surface-tint": "#006d35",
+                    "on-primary-fixed-variant": "#005227",
+                    "on-background": "#191c1d",
+                    "on-tertiary": "#ffffff",
+                    "primary": "#006b34",
+                    "secondary-fixed": "#ffdbc8",
+                    "surface-dim": "#d9dadb",
+                    "outline": "#6e7a6e",
+                    "tertiary": "#385d92",
+                    "secondary-fixed-dim": "#ffb68b",
+                    "on-primary-fixed": "#00210c",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f3f4f5",
+                    "surface-container": "#edeeef",
+                    "on-secondary-fixed": "#321200",
+                    "outline-variant": "#bdcabc",
+                    "surface": "#f8f9fa",
+                    "surface-container-high": "#e7e8e9",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-surface-variant": "#3e4a3f",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#5275ac",
+                    "on-surface": "#191c1d",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2e3132",
+                    "surface-bright": "#f8f9fa",
+                    "primary-fixed": "#8afaa7",
+                    "error-container": "#ffdad6",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#001b3c",
+                    "tertiary-fixed": "#d5e3ff",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#6edd8d",
+                    "on-tertiary-fixed-variant": "#1f477b",
+                    "on-tertiary-container": "#fefcff",
+                    "secondary-container": "#fb7800",
+                    "on-secondary-container": "#592600",
+                    "primary-container": "#008643",
+                    "inverse-primary": "#6edd8d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "margin-desktop": "120px",
+                    "md": "24px",
+                    "gutter": "24px",
+                    "sm": "12px",
+                    "margin-mobile": "20px",
+                    "lg": "48px",
+                    "xs": "4px",
+                    "xl": "80px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "label-bold": ["Atkinson Hyperlegible Next"],
+                    "button-text": ["Plus Jakarta Sans"],
+                    "display-lg-mobile": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Atkinson Hyperlegible Next"],
+                    "body-lg": ["Atkinson Hyperlegible Next"]
+            },
+            "fontSize": {
+                    "headline-md": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "label-bold": ["16px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "button-text": ["18px", {"lineHeight": "1", "fontWeight": "700"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-md": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["20px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<link rel="stylesheet" href="/styles.css"/>`r`n</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-inverse-surface shadow-sm dark:shadow-none docked full-width top-0 z-50">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md max-w-full mx-auto">
+<div class="font-display-lg text-headline-md font-extrabold text-primary dark:text-inverse-primary cursor-pointer active:scale-95 transition-transform duration-200">
+                Pura Vida Voluntarios
+            </div>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors font-body-md text-body-md hover:scale-105 transition-all" href="/">Inicio</a>
+<a class="text-primary dark:text-inverse-primary border-b-4 border-primary dark:border-inverse-primary pb-2 font-bold font-body-md text-body-md hover:scale-105 transition-all" href="/proyectos">Proyectos</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors font-body-md text-body-md hover:scale-105 transition-all" href="/registro">Registro</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors font-body-md text-body-md hover:scale-105 transition-all" href="/quienes-somos">Quiénes Somos</a>
+</nav>
+<a href="/registro" class="bg-primary text-on-primary px-lg py-sm rounded-full font-button-text text-button-text btn-hover-effect">
+                Unirse Ahora
+            </a>
+</div>
+</header>
+<main class="flex-grow w-full max-w-full mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+<!-- Dashboard Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-xl">
+<div>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-xs">Panel de Gestión</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Administración centralizada de iniciativas de impacto social.</p>
+</div>
+<button class="flex items-center gap-sm bg-secondary-container text-on-secondary-container px-lg py-md rounded-xl font-button-text text-button-text shadow-lg btn-hover-effect">
+<span class="material-symbols-outlined">add_circle</span>
+                Añadir Nuevo Proyecto
+            </button>
+</div>
+<!-- Stats Overview (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-xl">
+<div class="bg-surface-container-low p-md rounded-xl border border-outline-variant/30 flex items-center gap-md">
+<div class="bg-primary-container p-sm rounded-lg text-on-primary-container">
+<span class="material-symbols-outlined">assignment</span>
+</div>
+<div>
+<p class="font-label-bold text-label-bold text-on-surface-variant">Total Proyectos</p>
+<p class="font-headline-md text-headline-md text-primary">24</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-md rounded-xl border border-outline-variant/30 flex items-center gap-md">
+<div class="bg-tertiary-container p-sm rounded-lg text-on-tertiary-container">
+<span class="material-symbols-outlined">group</span>
+</div>
+<div>
+<p class="font-label-bold text-label-bold text-on-surface-variant">Voluntarios</p>
+<p class="font-headline-md text-headline-md text-tertiary">142</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-md rounded-xl border border-outline-variant/30 flex items-center gap-md">
+<div class="bg-secondary-container p-sm rounded-lg text-on-secondary-container">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<div>
+<p class="font-label-bold text-label-bold text-on-surface-variant">Ubicaciones</p>
+<p class="font-headline-md text-headline-md text-secondary">8</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-md rounded-xl border border-outline-variant/30 flex items-center gap-md">
+<div class="bg-surface-variant p-sm rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined">pending_actions</span>
+</div>
+<div>
+<p class="font-label-bold text-label-bold text-on-surface-variant">Pendientes</p>
+<p class="font-headline-md text-headline-md">5</p>
+</div>
+</div>
+</div>
+<!-- Projects Table Section -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<div class="px-md py-md bg-surface-container border-b border-outline-variant flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md text-on-surface">Listado de Proyectos</h2>
+<div class="flex items-center gap-sm">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-md py-2 bg-surface border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Buscar proyecto..." type="text"/>
+</div>
+<button class="p-2 hover:bg-surface-variant rounded-lg transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-md py-lg font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Proyecto</th>
+<th class="px-md py-lg font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Categoría</th>
+<th class="px-md py-lg font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Ubicación</th>
+<th class="px-md py-lg font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Estado</th>
+<th class="px-md py-lg font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Project 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-lg">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-cover bg-center shrink-0" data-alt="A lush green forest landscape in Costa Rica with mist rolling through the trees, captured in a bright, high-contrast photographic style that emphasizes the vibrant emerald tones of the Pura Vida Selva palette." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCh5608jdr0bPIB5Dvz31_DfxgHb9xybyeeVjxEoPcK2h34P6UPJuHO9UseOlfxcICGm1QuTx6sYTaRwNJPcw0G1ZgQl9-iW7Su6QQ6GVMBB-OB7GiGeqQrzxNwbQarChD1Pw_34tDr3BbviXgzAsEwUvXPdGD9VI-q1GCgnpYyXxPEtYqT75G0_itxBHraC0Ih7ti6b0aEf2i03qpLgNaGy0XaLMXxZZkWSvumUZrkjDrd04sIYBW9sytnExUr3zuq7NCsmwX6j1AB')"></div>
+<div>
+<div class="font-label-bold text-body-lg text-on-surface">Reforestación Talamanca</div>
+<div class="text-sm text-on-surface-variant">Iniciado: 12 Oct 2023</div>
+</div>
+</div>
+</td>
+<td class="px-md py-lg">
+<span class="bg-primary-container text-on-primary-container px-sm py-1 rounded-full text-sm font-label-bold">Ambiente</span>
+</td>
+<td class="px-md py-lg text-on-surface font-body-md">Limón, Talamanca</td>
+<td class="px-md py-lg">
+<div class="flex items-center gap-xs text-primary font-bold">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                                    En Progreso
+                                </div>
+</td>
+<td class="px-md py-lg text-right">
+<div class="flex justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Editar">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container rounded-lg transition-all" title="Eliminar">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Project 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-lg">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-cover bg-center shrink-0" data-alt="A warm, bright indoor community classroom setting where diverse generations are interacting, styled with high-key lighting and a soft atmospheric glow that conveys education and local empowerment in Costa Rica." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD1TkNtFFaEj1ck0daSPCgYn9hxaWBrU3YMfltWSueDAg3_nGGwuxB8ScTtTFBSjZQzhnDDMhqi4POPb2vjJ0tZ1y_BR87fJaKTBhQJsC6LF1O2ic8_VscoaSXlsoutoqTEAVTl-8ZH02sMxQ4J1YiGx0YeSL1wDh4bwhpwRy__s7vaRmDtdTxd5P6m3ps3VCXK47oy7_TNsjqHjoaf8cYHPDSlb3McFfa-ARX5ayhYLE5HlsXvLYhQLrKjdE9jxaiCJwbUWMuXuB2Y')"></div>
+<div>
+<div class="font-label-bold text-body-lg text-on-surface">Alfabetización Digital Senior</div>
+<div class="text-sm text-on-surface-variant">Iniciado: 05 Ene 2024</div>
+</div>
+</div>
+</td>
+<td class="px-md py-lg">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-sm py-1 rounded-full text-sm font-label-bold">Educación</span>
+</td>
+<td class="px-md py-lg text-on-surface font-body-md">San José, Curridabat</td>
+<td class="px-md py-lg">
+<div class="flex items-center gap-xs text-secondary font-bold">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                                    Planificación
+                                </div>
+</td>
+<td class="px-md py-lg text-right">
+<div class="flex justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Editar">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container rounded-lg transition-all" title="Eliminar">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Project 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-lg">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-cover bg-center shrink-0" data-alt="A clean, modern medical clinic setup with bright natural lighting and professional equipment, highlighting trust and accessibility in a healthcare context for local Costa Rican communities." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBGdUq86f4NJOihB1BgYNDgo9iCXv23oDnGaKSeUvc2uOyxUfsZoMBWhqkDsxorsS9OKj7XMzGNp8pdT3YHwplfWkLNX1e6FTBnB3VkNSL9XR_1tILbwPpc7Ha1QiaEeo5A1-5O8hvzp0SNQT5RmCxNueEEFJJgzHUj2bBPFfbBOu0g3gaQD0E5jnNNqwSd9J966bZbBGD6aNqpeYLbzPVKGuDCzgIKjfZsVFxs-eK7qtAgrzJZbGgf-STa5W4KKGOkCbiAxtAOM7mG')"></div>
+<div>
+<div class="font-label-bold text-body-lg text-on-surface">Clínica Móvil Costera</div>
+<div class="text-sm text-on-surface-variant">Iniciado: 15 Ago 2023</div>
+</div>
+</div>
+</td>
+<td class="px-md py-lg">
+<span class="bg-secondary-fixed text-on-secondary-fixed-variant px-sm py-1 rounded-full text-sm font-label-bold">Salud</span>
+</td>
+<td class="px-md py-lg text-on-surface font-body-md">Guanacaste, Nosara</td>
+<td class="px-md py-lg">
+<div class="flex items-center gap-xs text-on-surface-variant font-bold">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+                                    Finalizado
+                                </div>
+</td>
+<td class="px-md py-lg text-right">
+<div class="flex justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Editar">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container rounded-lg transition-all" title="Eliminar">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Project 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-lg">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-cover bg-center shrink-0" data-alt="Close up of hands planting a sapling into rich, dark soil under bright tropical sunlight, symbolizing growth and environmental commitment with a clean, professional aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDzx6_Znpx6IoErfNf-AZ-wUCdKtzj3pGnQFqMrgYkfmLEY-e3TBi7O-6Jdz0tYmWv6SN9qda5pCMYAfx8Ssuc0-4GukFL21xVGUpXpAq_2pd5AsXXa6ztoqUBUHT8IlmihkAaT98AsSjJKjXMWU-D5H5fEKbG5iftkgzulfaHCzyb0EyoDpHO3TazvooVnPfXmCp1W61K8RPFv0GEBL5v5m_R45-_TAErXmAdN94mGssrKI8An3ROMblystKkvIb-rMtozjIZ0LDYV')"></div>
+<div>
+<div class="font-label-bold text-body-lg text-on-surface">Huertos Urbanos Sostenibles</div>
+<div class="text-sm text-on-surface-variant">Iniciado: 20 Feb 2024</div>
+</div>
+</div>
+</td>
+<td class="px-md py-lg">
+<span class="bg-primary-container text-on-primary-container px-sm py-1 rounded-full text-sm font-label-bold">Comunidad</span>
+</td>
+<td class="px-md py-lg text-on-surface font-body-md">Heredia, Centro</td>
+<td class="px-md py-lg">
+<div class="flex items-center gap-xs text-primary font-bold">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                                    En Progreso
+                                </div>
+</td>
+<td class="px-md py-lg text-right">
+<div class="flex justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Editar">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container rounded-lg transition-all" title="Eliminar">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-md py-md bg-surface-container-low border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-md">
+<p class="font-body-md text-on-surface-variant">Mostrando 1 a 4 de 24 proyectos</p>
+<div class="flex items-center gap-xs">
+<button class="p-2 hover:bg-surface-variant rounded-lg transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 bg-primary text-on-primary rounded-lg font-bold">1</button>
+<button class="w-10 h-10 hover:bg-surface-variant rounded-lg transition-colors font-bold">2</button>
+<button class="w-10 h-10 hover:bg-surface-variant rounded-lg transition-colors font-bold">3</button>
+<span class="px-2">...</span>
+<button class="w-10 h-10 hover:bg-surface-variant rounded-lg transition-colors font-bold">6</button>
+<button class="p-2 hover:bg-surface-variant rounded-lg transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface w-full px-margin-mobile md:px-margin-desktop py-xl flex flex-col md:flex-row justify-between items-center gap-md border-t border-outline-variant/20">
+<div class="flex flex-col gap-xs items-center md:items-start text-center md:text-left">
+<div class="font-headline-md text-headline-md font-bold text-on-surface dark:text-inverse-on-surface">Pura Vida Voluntarios</div>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant max-w-sm">© 2024 Pura Vida Voluntarios. Radicalmente Inclusivo.</p>
+</div>
+<div class="flex gap-lg flex-wrap justify-center">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">Facebook</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">Instagram</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">WhatsApp</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">Contacto</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">Privacidad</a>
+</div>
+</footer>
+<!-- Simple Interactivity for Row Highlight -->
+<script>
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (!e.target.closest('button')) {
+                    // Logic for selecting a row or showing details
+                    console.log('Project selected');
+                }
+            });
+        });
+    </script>
+</body></html>

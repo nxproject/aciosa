@@ -1,0 +1,319 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&amp;family=Atkinson+Hyperlegible+Next:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#6edd8d",
+                    "on-secondary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface-container-low": "#f3f4f5",
+                    "outline-variant": "#bdcabc",
+                    "primary-container": "#008643",
+                    "surface-container-high": "#e7e8e9",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-tertiary-container": "#fefcff",
+                    "secondary-fixed-dim": "#ffb68b",
+                    "primary-fixed": "#8afaa7",
+                    "primary-fixed-dim": "#6edd8d",
+                    "tertiary-container": "#5275ac",
+                    "surface-container-highest": "#e1e3e4",
+                    "surface": "#f8f9fa",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#006d35",
+                    "on-background": "#191c1d",
+                    "on-secondary-fixed-variant": "#753400",
+                    "on-surface": "#191c1d",
+                    "on-surface-variant": "#3e4a3f",
+                    "secondary-container": "#fb7800",
+                    "secondary-fixed": "#ffdbc8",
+                    "on-secondary-fixed": "#321200",
+                    "secondary": "#994700",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#edeeef",
+                    "on-tertiary-fixed": "#001b3c",
+                    "background": "#f8f9fa",
+                    "tertiary": "#385d92",
+                    "on-secondary-container": "#592600",
+                    "on-tertiary-fixed-variant": "#1f477b",
+                    "primary": "#006b34",
+                    "surface-dim": "#d9dadb",
+                    "surface-variant": "#e1e3e4",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed": "#d5e3ff",
+                    "tertiary-fixed-dim": "#a7c8ff",
+                    "outline": "#6e7a6e",
+                    "surface-bright": "#f8f9fa",
+                    "inverse-surface": "#2e3132",
+                    "on-primary-fixed": "#00210c",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed-variant": "#005227",
+                    "on-primary-container": "#f6fff3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "80px",
+                    "margin-mobile": "20px",
+                    "gutter": "24px",
+                    "base": "8px",
+                    "lg": "48px",
+                    "xs": "4px",
+                    "md": "24px",
+                    "sm": "12px",
+                    "margin-desktop": "120px"
+            },
+            "fontFamily": {
+                    "button-text": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-md": ["Atkinson Hyperlegible Next"],
+                    "body-lg": ["Atkinson Hyperlegible Next"],
+                    "display-lg-mobile": ["Plus Jakarta Sans"],
+                    "label-bold": ["Atkinson Hyperlegible Next"],
+                    "display-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "button-text": ["18px", {"lineHeight": "1", "fontWeight": "700"}],
+                    "headline-md": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "body-md": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["20px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                    "label-bold": ["16px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<link rel="stylesheet" href="/styles.css"/>
+</head>
+<body class="bg-surface text-on-surface font-body-md overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-inverse-surface shadow-sm dark:shadow-none docked full-width top-0 z-50 sticky">
+<div class="flex justify-between items-center w-full px-margin-desktop py-md max-w-full mx-auto">
+<div class="font-display-lg text-headline-md font-extrabold text-primary dark:text-inverse-primary">
+                Pura Vida Voluntarios
+            </div>
+<div class="hidden md:flex items-center gap-lg">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors cursor-pointer active:scale-95 duration-200 hover:scale-105" href="/">Inicio</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors cursor-pointer active:scale-95 duration-200 hover:scale-105" href="/proyectos">Proyectos</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors cursor-pointer active:scale-95 duration-200 hover:scale-105" href="/registro">Registro</a>
+<a class="text-primary dark:text-inverse-primary border-b-4 border-primary dark:border-inverse-primary pb-2 font-bold cursor-pointer active:scale-95 duration-200 hover:scale-105" href="/quienes-somos">Quiénes Somos</a>
+</div>
+<a href="/registro" class="bg-primary text-on-primary px-lg py-sm rounded-full font-button-text text-button-text btn-hover-scale active:scale-95 transition-transform">
+                Unirse Ahora
+            </a>
+</div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-[716px] flex items-center justify-center overflow-hidden pt-xl">
+
+<div class="relative z-10 text-center max-w-4xl px-margin-mobile md:px-0">
+<h1 class="font-display-lg text-display-lg text-on-surface mb-md">Nuestra Historia: Raíces de Solidaridad</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-lg">
+                    En Pura Vida Conexión, creemos que la verdadera transformación ocurre cuando diferentes generaciones se encuentran para sanar la tierra y fortalecer la comunidad.
+                </p>
+<div class="flex flex-col md:flex-row gap-md justify-center">
+<div class="flex items-center gap-sm bg-surface-container-high px-md py-sm rounded-full">
+<span class="material-symbols-outlined text-primary">eco</span>
+<span class="font-label-bold text-label-bold text-on-surface">Sostenibilidad Real</span>
+</div>
+<div class="flex items-center gap-sm bg-surface-container-high px-md py-sm rounded-full">
+<span class="material-symbols-outlined text-primary">groups</span>
+<span class="font-label-bold text-label-bold text-on-surface">Radicalmente Inclusivo</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid: History & Mission -->
+<section class="px-margin-desktop py-xl">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Large Card: The Spark -->
+<div class="md:col-span-8 tonal-layer rounded-xl overflow-hidden p-md flex flex-col md:flex-row gap-md border border-outline-variant/30">
+<div class="w-full md:w-1/2 h-64 md:h-full rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A cinematic, warm-toned photograph of a group of diverse volunteers including a young Gen Z girl and an elderly man planting a native tree in a lush Costa Rican rainforest. The morning sunlight filters through the dense canopy, highlighting the rich greens of the leaves and the joyful, cooperative expression on their faces. The style is professional and deeply human." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7ROgs_kYgk0czVdSEks0xIa_D-bhrjXAuUkmU8kVZHRQArxHNW0Ju_nqY4llIIHY_7JfYBRASOXjrVvZLAe1GIe7isNR0vHa-0j8L4-7TLEgrI1MXwQyynSfF3Ius3HKbKNDu5pPP3TRS1EPZBb3NbayAYYq4uDta6N1hI8dKkZF6rpTK8zJmVX8Z7jK7E9G0AWYmYM2qmRr_olGfLvXC86qTjcxQ36HAEtz67VwV65U_MktG3rcu_BKLGSQUk8jqU6hexu7GcE6k"/>
+</div>
+<div class="flex flex-col justify-center">
+<span class="text-primary font-label-bold text-label-bold uppercase mb-xs">Desde 2012</span>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Cómo Empezamos</h2>
+<p class="text-on-surface-variant mb-md">Pura Vida Conexión nació en las montañas de San José con una idea simple: el conocimiento de nuestros adultos mayores es el fertilizante que necesitan los proyectos de las nuevas generaciones. Lo que comenzó como un pequeño huerto comunitario se convirtió en una red nacional de voluntariado intergeneracional.</p>
+<a href="/registro" class="flex items-center gap-sm text-primary font-bold hover:underline">
+                            Conocer más sobre nuestro impacto
+                            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Small Card: Values -->
+<div class="md:col-span-4 bg-primary-container p-md rounded-xl text-on-primary-container flex flex-col justify-between">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+<div>
+<h3 class="font-headline-md text-headline-md mb-sm">Nuestros Valores</h3>
+<ul class="space-y-sm">
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined mt-1">check_circle</span>
+<span><strong>Inclusión Radical:</strong> Nadie sobra, todos tienen un rol vital.</span>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined mt-1">check_circle</span>
+<span><strong>Respeto Ancestral:</strong> Valoramos la sabiduría de la experiencia.</span>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined mt-1">check_circle</span>
+<span><strong>Regeneración:</strong> Dejamos el mundo mejor de como lo encontramos.</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Stats Bar -->
+<div class="md:col-span-12 grid grid-cols-2 md:grid-cols-4 gap-md py-lg border-y border-outline-variant/20">
+<div class="text-center">
+<div class="text-primary font-extrabold text-4xl">1.2k+</div>
+<div class="text-on-surface-variant font-label-bold uppercase">Voluntarios Activos</div>
+</div>
+<div class="text-center">
+<div class="text-secondary font-extrabold text-4xl">45</div>
+<div class="text-on-surface-variant font-label-bold uppercase">Proyectos Locales</div>
+</div>
+<div class="text-center">
+<div class="text-primary font-extrabold text-4xl">15k</div>
+<div class="text-on-surface-variant font-label-bold uppercase">Árboles Sembrados</div>
+</div>
+<div class="text-center">
+<div class="text-secondary font-extrabold text-4xl">24/7</div>
+<div class="text-on-surface-variant font-label-bold uppercase">Compromiso Pura Vida</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Our Team Section -->
+<section class="bg-surface-container-low px-margin-desktop py-xl">
+<div class="max-w-4xl mx-auto text-center mb-xl">
+<h2 class="font-display-lg text-display-lg text-on-surface mb-md">El Corazón del Equipo</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Un grupo diverso de profesionales y apasionados dedicados a tejer lazos comunitarios en todo Costa Rica.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Team Member 1 -->
+<div class="group text-center">
+<div class="relative w-48 h-48 mx-auto mb-md rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:border-primary transition-all duration-300">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a Costa Rican woman in her late 40s with a warm, welcoming smile. She is wearing a green linen shirt and has silver earrings. The background is a soft-focus tropical garden. High-contrast lighting with a bright, professional aesthetic that emphasizes warmth and leadership." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8hXyQR7p2IoVGfJpjUt3xlzhwxE7zzW56r6sc25hbDalV5UIcaX2yu9tfrlgz3oHKongbNcwhmACaLXJZJKkwzHdpoCl5oPh-xVZ-5nwqvYfEIdqlYa4LtlUjF7FoBsb-kLlW_eSUKcsJHhKORlODXIID9BKfXYmG9SRqthyeUX4NzUG-aDnZmv6zrQKJth-WWolcZN3bTPIEFak7vZSSCCukos3Ab61paNGKAEKDwnkYKO72MRx4UM2a3j_Qg2EzsdsKTDYaT1v2"/>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Ana Lucía Mora</h4>
+<p class="text-primary font-label-bold mb-sm">Directora Fundadora</p>
+<p class="text-on-surface-variant text-sm px-md">20 años de experiencia en desarrollo comunitario y gestión ambiental.</p>
+</div>
+<!-- Team Member 2 -->
+<div class="group text-center">
+<div class="relative w-48 h-48 mx-auto mb-md rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:border-primary transition-all duration-300">
+<img class="w-full h-full object-cover" data-alt="Portrait of a young man in his early 20s with short curly hair and modern glasses. He is smiling enthusiastically, wearing a casual mustard-colored polo shirt. He stands against a minimalist, bright interior office background with a hint of tech-savviness. The lighting is crisp and modern." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCJIUlmL_ZWmq39M3VN_yaog_17lef05HsJivBuMYqd-6vYgk1PuxyisSNhCb0UK7wq7dN4oFal-p7dxDGveVpQ1jf2BRp8SaVs3LEDslKWiv7UglH6SPUryyBbw5R3zHivIqGqyPZ8Kwr1isvTrKcVIBdGAvmFD3SXip3McFbyT1dzlwspHRZ7MMTh4FrM4Jw3aSY2TWnKOO9laDtKBzxlT9bJy95P2-eIYXazgcbCAnj6Hz95UcNp4B0khiLOScrC7YxwLWEhtmf"/>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Mateo Quesada</h4>
+<p class="text-primary font-label-bold mb-sm">Coordinador Juvenil</p>
+<p class="text-on-surface-variant text-sm px-md">Estratega digital y apasionado por la movilización de nuevas generaciones.</p>
+</div>
+<!-- Team Member 3 -->
+<div class="group text-center">
+<div class="relative w-48 h-48 mx-auto mb-md rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:border-primary transition-all duration-300">
+<img class="w-full h-full object-cover" data-alt="A portrait of an elderly man in his 70s with a kind, wrinkled face and white hair. He is wearing a traditional Costa Rican brimmed hat and a light blue button-down shirt. His expression is one of calm wisdom and pride. The background is a sunny agricultural field, reflecting his role as a mentor. Soft, natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkybUwvzPZ9_3gh-I_afaocp0QH3vShwElDCcvUyOnoN1GJkweW33-1Km0UoMfPf5DrH4EFmI-bKX1VXdAESArDWnchltlH6Mf4w7wioRQ8clrcr8opbJR0SzmdqrYAPI1P-CQWJFlBAynWEY3gTgncYJNKdhwezmCRBJmnjTwdtqS9fOxU5ysLyzhl5x6teHP1OoBWbUjOcwNq-JD-ctZSTteco5dm6XuEFvJbDcfn4qFl_shXsjmrwSy1caEneck4-Apqp0aXiZX"/>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Don Ricardo Vargas</h4>
+<p class="text-primary font-label-bold mb-sm">Mentor de Saberes</p>
+<p class="text-on-surface-variant text-sm px-md">Guardián de técnicas agrícolas tradicionales y mediador comunitario.</p>
+</div>
+</div>
+</section>
+<!-- Testimonials (Asymmetric Layout) -->
+<section class="px-margin-desktop py-xl">
+<h2 class="font-display-lg text-display-lg text-center mb-xl">Voces de Nuestra Comunidad</h2>
+<div class="flex flex-col md:flex-row gap-lg items-center">
+<!-- Testimonial 1 (Young) -->
+<div class="flex-1 bg-white p-lg rounded-3xl shadow-sm border-l-8 border-secondary-container">
+<span class="material-symbols-outlined text-secondary-container text-5xl mb-md">format_quote</span>
+<p class="font-body-lg text-on-surface italic mb-lg">"Como joven, a veces sientes que tus ideas no pesan. En Pura Vida Conexión, Don Ricardo me enseñó que la paciencia es tan importante como la pasión. He aprendido más sobre la tierra aquí que en cualquier libro."</p>
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a smiling teenage girl with braided hair and a casual green t-shirt, looking directly into the camera with bright eyes. Modern and vibrant lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBliQs-MEhHh7-gE0PjRB1wgclIHBM85QAdEze5Kr5phXmqZZZo8BPs4QdGsPKlMWL3OlmF5ICblHVxH1MhzvpbjqKeQXP0EWeV8qmXgSwttTDZtuRhLojYFwp0XYeZdFkQbKETHNZ8Rv4903ky3LXXbvga_Vh7wAPmPuM67_tDTuORE6J3i4ub3bnzzcThhmGlE29o7RnDU9eYGx71zIVL32VytamvTQGVcC3NovY_eELzec4Vi9pxvCRSJXtDWZsHrGOF3xZqvORs"/>
+</div>
+<div>
+<div class="font-bold">Sofía Méndez</div>
+<div class="text-sm text-on-surface-variant">Voluntaria (19 años)</div>
+</div>
+</div>
+</div>
+<!-- Testimonial 2 (Senior) -->
+<div class="flex-1 bg-white p-lg rounded-3xl shadow-sm border-r-8 border-primary-container mt-12 md:mt-24">
+<span class="material-symbols-outlined text-primary-container text-5xl mb-md">format_quote</span>
+<p class="font-body-lg text-on-surface italic mb-lg">"Muchos piensan que a mi edad ya solo queda descansar. Aquí me recordaron que todavía tengo manos para sembrar y una voz para guiar. Ver el entusiasmo de los muchachos me da años de vida."</p>
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up of an elderly woman in her 80s with elegant grey hair and a friendly face. She is wearing a colorful scarf and sitting in a sunlit porch. The image radiates peace and purpose." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTLrwje3fM0k-fBFHO8rXkgrUL_gFd3xQ25H5PIxFvj38m3dbQVV8zUIEKoSppco6cIcnWSU9CqUFrcXKMx_H6h8pi5YugM2c_XKDdDm6b6fNi3nm--AyffzFbr4PaM-lLMcJOxQr-tMQifBZqV5xl0RImw6zJozAhEUh7o38W5mVvIYvsP8IGkpw-x8chg-F1w3Irg_PEVSIqvEOpOksh8NWVmFyzWrnuq6tpcW_CgN7k_bCcX1JTTEs3aDG8bKe-iegLa6Z7uFNe"/>
+</div>
+<div>
+<div class="font-bold">Doña Elena Ruiz</div>
+<div class="text-sm text-on-surface-variant">Voluntaria (82 años)</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="px-margin-desktop mb-xl">
+<div class="bg-inverse-surface rounded-3xl p-xl text-center relative overflow-hidden">
+
+<div class="relative z-10">
+<h2 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-primary-fixed mb-md">¿Listo para escribir tu propia historia?</h2>
+<p class="font-body-lg text-inverse-on-surface max-w-2xl mx-auto mb-lg opacity-90">Sea cual sea tu edad, tu experiencia es el puente que necesitamos para construir un Costa Rica más sostenible e inclusivo.</p>
+<div class="flex flex-col md:flex-row gap-md justify-center items-center">
+<button class="bg-secondary text-on-secondary px-lg py-sm rounded-full font-button-text text-button-text min-h-[56px] btn-hover-scale min-w-[200px]">
+                            Únete hoy
+                        </a>
+<button class="bg-transparent border-2 border-white text-white px-lg py-sm rounded-full font-button-text text-button-text min-h-[56px] btn-hover-scale min-w-[200px]">
+                            Ver Proyectos
+                        </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface w-full px-margin-desktop py-xl flex flex-col md:flex-row justify-between items-center gap-md full-width bottom">
+<div class="flex flex-col gap-sm items-center md:items-start">
+<div class="font-headline-md text-headline-md font-bold text-on-surface dark:text-inverse-on-surface">Pura Vida Voluntarios</div>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant">© 2024 Pura Vida Voluntarios. Radicalmente Inclusivo.</p>
+</div>
+<div class="flex gap-lg flex-wrap justify-center">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">Facebook</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">Instagram</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">WhatsApp</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">Contacto</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">Privacidad</a>
+</div>
+</footer>
+<script>
+        // Micro-interaction for team cards
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.querySelector('img').style.transform = 'scale(1.1)';
+            });
+            card.querySelector('img').style.transition = 'transform 0.5s ease';
+            card.addEventListener('mouseleave', () => {
+                card.querySelector('img').style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>
