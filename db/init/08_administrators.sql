@@ -10,3 +10,9 @@ SELECT 'Administrador Demo', '8888 0000'
 WHERE NOT EXISTS (
   SELECT 1 FROM administrators WHERE phone = '8888 0000'
 );
+
+INSERT INTO administrators (name, phone)
+SELECT 'Jose Gonzalez', '6270 8821'
+WHERE NOT EXISTS (
+  SELECT 1 FROM administrators WHERE phone = '6270 8821'
+);
