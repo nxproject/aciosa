@@ -174,12 +174,8 @@
 <input class="h-[64px] px-md rounded-xl border-2 border-outline focus:border-primary focus:ring-primary text-body-md bg-surface" id="name" name="name" placeholder="Ej. María García" required="" type="text"/>
 </div>
 <div class="flex flex-col gap-xs">
-<label class="font-label-bold text-label-bold text-on-surface-variant" for="email">Correo electrónico</label>
-<input class="h-[64px] px-md rounded-xl border-2 border-outline focus:border-primary focus:ring-primary text-body-md bg-surface" id="email" name="email" placeholder="maria@ejemplo.com" required="" type="email"/>
-</div>
-<div class="flex flex-col gap-xs">
 <label class="font-label-bold text-label-bold text-on-surface-variant" for="phone">WhatsApp</label>
-<input class="h-[64px] px-md rounded-xl border-2 border-outline focus:border-primary focus:ring-primary text-body-md bg-surface" id="phone" name="phone" placeholder="50688888888" type="tel"/>
+<input class="h-[64px] px-md rounded-xl border-2 border-outline focus:border-primary focus:ring-primary text-body-md bg-surface" id="phone" inputmode="numeric" maxlength="9" name="phone" pattern="[0-9]{4} [0-9]{4}" placeholder="8888 8888" required="" type="tel"/>
 </div>
 </div>
 <div class="flex flex-col gap-sm pt-sm">
@@ -274,6 +270,14 @@
 </div>
 </footer>
 <script>
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', () => {
+                const digits = phoneInput.value.replace(/\D/g, '').slice(0, 8);
+                phoneInput.value = digits.length > 4 ? `${digits.slice(0, 4)} ${digits.slice(4)}` : digits;
+            });
+        }
+
         document.getElementById('registrationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             

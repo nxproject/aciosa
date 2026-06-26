@@ -327,13 +327,13 @@ ${badges}
 </article>`;
         }
 
-        async function findMatches(email) {
-            const response = await fetch(`/api/project-matches?email=${encodeURIComponent(email)}`);
+        async function findMatches(phone) {
+            const response = await fetch(`/api/project-matches?phone=${encodeURIComponent(phone)}`);
             const payload = await response.json().catch(() => ({}));
             if (response.status === 404 && payload.found === false) {
-                notify.confirm('No encontramos ese correo. ¿Quieres registrarte como voluntario?', choice => {
+                notify.confirm('No encontramos ese WhatsApp. ¿Quieres registrarte como voluntario?', choice => {
                     if (choice === 'join') {
-                        window.location.href = `/registro?email=${encodeURIComponent(email)}`;
+                        window.location.href = `/registro?phone=${encodeURIComponent(phone)}`;
                     }
                 }, {
                     title: 'Registro no encontrado',
@@ -359,17 +359,17 @@ ${badges}
             notify.success(`Encontramos ${payload.projects.length} proyecto${payload.projects.length === 1 ? '' : 's'} para ${payload.volunteer.name}.`);
         }
 
-        function askForEmail() {
-            notify.prompt('Ingresa tu correo para buscar proyectos que calcen con tu registro.', value => {
-                const email = String(value || '').trim();
-                if (!email) {
+        function askForPhone() {
+            notify.prompt('Ingresa tu WhatsApp para buscar proyectos que calcen con tu registro.', value => {
+                const phone = String(value || '').trim();
+                if (!phone) {
                     notify.info('Puedes explorar los proyectos disponibles cuando quieras.');
                     return;
                 }
-                findMatches(email).catch(() => notify.error('No pudimos buscar proyectos en este momento.'));
+                findMatches(phone).catch(() => notify.error('No pudimos buscar proyectos en este momento.'));
             }, {
                 title: 'Buscar proyectos para ti',
-                placeholder: 'tu@email.com',
+                placeholder: '8888 8888',
                 okLabel: 'Buscar',
                 cancelLabel: 'Ver todos',
                 type: 'info'
@@ -377,7 +377,7 @@ ${badges}
         }
 
         if (matchButton) {
-            matchButton.addEventListener('click', askForEmail);
+            matchButton.addEventListener('click', askForPhone);
         }
 
         // Simple fade-in animation for cards on load
@@ -392,7 +392,7 @@ ${badges}
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
             });
-            setTimeout(askForEmail, 350);
+            setTimeout(askForPhone, 350);
         });
     </script>
 </body></html>

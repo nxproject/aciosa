@@ -38,4 +38,4 @@ OpenWA runs as its own Docker service so the Node app stays focused on the volun
 - OpenWA API docs after the service starts: `http://localhost:8081/api-docs/`
 - First login requires scanning the QR code from the `aciosa_openwa` container logs.
 
-Registration includes an optional WhatsApp field. When OpenWA is connected, the app sends a welcome message after saving a volunteer. If OpenWA is still offline or waiting for QR login, registration still succeeds and the WhatsApp message is skipped.
+Registration uses a Costa Rican WhatsApp number as the volunteer identifier. Enter local numbers as `8888 8888`; the app normalizes them for matching and for OpenWA. When OpenWA is connected, the app sends a welcome message after saving a volunteer. If OpenWA is still offline or waiting for QR login, registration still succeeds and the WhatsApp message is skipped.

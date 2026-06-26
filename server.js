@@ -44,7 +44,24 @@ function normalizeWhatsAppTo(value) {
   if (!raw) return '';
   if (raw.includes('@')) return raw;
   const digits = raw.replace(/[^\d]/g, '');
+  if (digits.length === 8) return `506${digits}@c.us`;
   return digits ? `${digits}@c.us` : '';
+}
+
+function localPhoneDigits(value) {
+  const digits = String(value || '').replace(/[^\d]/g, '');
+  if (digits.length === 11 && digits.startsWith('506')) return digits.slice(3);
+  return digits;
+}
+
+function formatCostaRicaPhone(value) {
+  const digits = localPhoneDigits(value);
+  if (digits.length !== 8) return '';
+  return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+}
+
+function isCostaRicaPhone(value) {
+  return localPhoneDigits(value).length === 8;
 }
 
 async function openWaRequest(pathname, payload) {
@@ -206,18 +223,19 @@ function projectToApi(project) {
   };
 }
 
-async function getVolunteerByEmail(email) {
+async function getVolunteerByPhone(phone) {
+  const digits = localPhoneDigits(phone);
   const [volunteers] = await db.query(
-    `SELECT v.volunteer_id, v.full_name, v.email,
+    `SELECT v.volunteer_id, v.full_name, v.phone,
             GROUP_CONCAT(i.name ORDER BY i.name SEPARATOR ',') AS interests
        FROM volunteers v
        LEFT JOIN volunteer_interests vi ON vi.volunteer_id = v.volunteer_id
        LEFT JOIN interests i ON i.interest_id = vi.interest_id
-      WHERE LOWER(v.email) = LOWER(?)
+      WHERE REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(v.phone, ''), ' ', ''), '-', ''), '(', ''), ')', '') IN (?, ?)
       GROUP BY v.volunteer_id
       ORDER BY v.volunteer_id DESC
       LIMIT 1`,
-    [email]
+    [digits, `506${digits}`]
   );
 
   return volunteers[0] || null;
@@ -430,18 +448,19 @@ function renderProjectEditInterestOptions(interests, selectedInterestIds) {
   }).join('\n');
 }
 
-async function renderRegistrationPage(prefillEmail = '') {
+async function renderRegistrationPage(prefillPhone = '') {
   const templatePath = path.join(publicDir, 'nete_como_voluntario/code.html');
   const template = await fs.promises.readFile(templatePath, 'utf8');
   const interests = await getInterests();
   const options = renderInterestOptions(interests);
+  const safePhone = formatCostaRicaPhone(prefillPhone) || prefillPhone;
 
   return template.replace(
     /<div class="grid grid-cols-2 md:grid-cols-3 gap-sm" data-interest-options>[\s\S]*?<\/div>\s*<\/div>\s*<!-- Step 3: Availability -->/,
     `<div class="grid grid-cols-2 md:grid-cols-3 gap-sm" data-interest-options>\n${options}\n</div>\n</div>\n<!-- Step 3: Availability -->`
   ).replace(
-    /(<input[^>]*id="email"[^>]*name="email"[^>]*)(\/?>)/,
-    `$1 value="${escapeHtml(prefillEmail)}"$2`
+    /(<input[^>]*id="phone"[^>]*name="phone"[^>]*)(\/?>)/,
+    `$1 value="${escapeHtml(safePhone)}"$2`
   );
 }
 
@@ -605,8 +624,7 @@ async function saveVolunteer(req) {
     .filter(Boolean))];
   const volunteer = {
     fullName: formValue(formData, 'name'),
-    email: formValue(formData, 'email'),
-    phone: formValue(formData, 'phone'),
+    phone: formatCostaRicaPhone(formValue(formData, 'phone')),
     ageRange: selectedAgeRanges.join(', '),
     ageRanges: selectedAgeRanges,
     interestIds: selectedInterestIds,
@@ -614,7 +632,7 @@ async function saveVolunteer(req) {
     availability: formValue(formData, 'availability'),
   };
 
-  if (!volunteer.fullName || !volunteer.email || !volunteer.availability) {
+  if (!volunteer.fullName || !volunteer.phone || !volunteer.availability) {
     const error = new Error('Missing required volunteer fields');
     error.statusCode = 400;
     throw error;
@@ -641,7 +659,7 @@ async function saveVolunteer(req) {
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         volunteer.fullName,
-        volunteer.email,
+        null,
         volunteer.phone || null,
         volunteer.ageRange || null,
         JSON.stringify(volunteer.interests),
@@ -784,7 +802,7 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && cleanPath === '/registro') {
     try {
-      send(res, 200, await renderRegistrationPage(url.searchParams.get('email') || ''), 'text/html; charset=utf-8');
+      send(res, 200, await renderRegistrationPage(url.searchParams.get('phone') || ''), 'text/html; charset=utf-8');
     } catch (error) {
       console.error('Unable to render interests from MariaDB:', error);
       sendFile(res, path.join(publicDir, 'nete_como_voluntario/code.html'));
@@ -793,19 +811,19 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && cleanPath === '/api/project-matches') {
-    const email = String(url.searchParams.get('email') || '').trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      sendJson(res, 400, { ok: false, message: 'Ingresa un correo válido.' });
+    const phone = String(url.searchParams.get('phone') || '').trim();
+    if (!isCostaRicaPhone(phone)) {
+      sendJson(res, 400, { ok: false, message: 'Ingresa un WhatsApp válido de Costa Rica en formato 8888 8888.' });
       return;
     }
 
     try {
-      const volunteer = await getVolunteerByEmail(email);
+      const volunteer = await getVolunteerByPhone(phone);
       if (!volunteer) {
         sendJson(res, 404, {
           ok: false,
           found: false,
-          message: 'No encontramos un registro con ese correo.',
+          message: 'No encontramos un registro con ese WhatsApp.',
         });
         return;
       }
@@ -816,7 +834,7 @@ const server = http.createServer(async (req, res) => {
         found: true,
         volunteer: {
           name: volunteer.full_name,
-          email: volunteer.email,
+          phone: volunteer.phone,
           interests: splitList(volunteer.interests),
         },
         projects,
