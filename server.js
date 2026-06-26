@@ -1,6 +1,7 @@
 ﻿const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const mysql = require('mysql2/promise');
 
 const port = Number(process.env.PORT) || 3000;
@@ -10,6 +11,7 @@ const openWa = {
   apiUrl: String(process.env.OPENWA_API_URL || 'http://openwa:8080').replace(/\/+$/, ''),
   apiKey: process.env.OPENWA_API_KEY || '',
 };
+const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'puravida';
 
 const routes = new Map([
   ['/', 'inicio_pura_vida_voluntarios/code.html'],
@@ -62,6 +64,43 @@ function formatCostaRicaPhone(value) {
 
 function isCostaRicaPhone(value) {
   return localPhoneDigits(value).length === 8;
+}
+
+function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
+  const hash = crypto.scryptSync(String(password), salt, 64).toString('hex');
+  return { salt, hash };
+}
+
+function verifyPassword(password, salt, hash) {
+  if (!salt || !hash) return false;
+  const expected = Buffer.from(hash, 'hex');
+  const actual = crypto.scryptSync(String(password), salt, expected.length);
+  return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
+}
+
+async function ensureAdministratorPasswords() {
+  await db.query(
+    `ALTER TABLE administrators
+       ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255) NULL,
+       ADD COLUMN IF NOT EXISTS password_salt VARCHAR(64) NULL,
+       ADD COLUMN IF NOT EXISTS password_updated_at TIMESTAMP NULL`
+  );
+
+  const [administrators] = await db.query(
+    `SELECT administrator_id
+       FROM administrators
+      WHERE password_hash IS NULL OR password_salt IS NULL`
+  );
+
+  for (const administrator of administrators) {
+    const { salt, hash } = hashPassword(defaultAdminPassword);
+    await db.query(
+      `UPDATE administrators
+          SET password_hash = ?, password_salt = ?, password_updated_at = CURRENT_TIMESTAMP
+        WHERE administrator_id = ?`,
+      [hash, salt, administrator.administrator_id]
+    );
+  }
 }
 
 async function openWaRequest(pathname, payload) {
@@ -244,7 +283,7 @@ async function getVolunteerByPhone(phone) {
 async function getAdministratorByPhone(phone) {
   const digits = localPhoneDigits(phone);
   const [administrators] = await db.query(
-    `SELECT administrator_id, name, phone
+    `SELECT administrator_id, name, phone, password_hash, password_salt, password_updated_at
        FROM administrators
       WHERE REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(phone, ''), ' ', ''), '-', ''), '(', ''), ')', '') IN (?, ?)
       ORDER BY administrator_id DESC
@@ -253,6 +292,16 @@ async function getAdministratorByPhone(phone) {
   );
 
   return administrators[0] || null;
+}
+
+async function setAdministratorPassword(administratorId, password) {
+  const { salt, hash } = hashPassword(password);
+  await db.query(
+    `UPDATE administrators
+        SET password_hash = ?, password_salt = ?, password_updated_at = CURRENT_TIMESTAMP
+      WHERE administrator_id = ?`,
+    [hash, salt, administratorId]
+  );
 }
 
 async function getWhatsAppContact(phone) {
@@ -834,6 +883,70 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'POST' && cleanPath === '/api/admin/login') {
+    try {
+      const body = await readRequestBody(req);
+      const formData = new URLSearchParams(body);
+      const phone = formValue(formData, 'phone');
+      const password = formValue(formData, 'password');
+
+      if (!isCostaRicaPhone(phone) || !password) {
+        sendJson(res, 400, { ok: false, message: 'Ingresa un WhatsApp de Costa Rica y la contraseña.' });
+        return;
+      }
+
+      const administrator = await getAdministratorByPhone(phone);
+      if (!administrator || !verifyPassword(password, administrator.password_salt, administrator.password_hash)) {
+        sendJson(res, 401, { ok: false, message: 'WhatsApp o contraseña incorrectos.' });
+        return;
+      }
+
+      sendJson(res, 200, {
+        ok: true,
+        administrator: {
+          name: administrator.name,
+          phone: administrator.phone,
+          password_updated_at: administrator.password_updated_at,
+        },
+      });
+    } catch (error) {
+      console.error('Unable to verify administrator password:', error);
+      sendJson(res, 500, { ok: false, message: 'No pudimos verificar el acceso.' });
+    }
+    return;
+  }
+
+  if (req.method === 'POST' && cleanPath === '/api/admin/change-password') {
+    try {
+      const body = await readRequestBody(req);
+      const formData = new URLSearchParams(body);
+      const phone = formValue(formData, 'phone');
+      const currentPassword = formValue(formData, 'currentPassword');
+      const newPassword = formValue(formData, 'newPassword');
+
+      if (!isCostaRicaPhone(phone) || !currentPassword || newPassword.length < 6) {
+        sendJson(res, 400, {
+          ok: false,
+          message: 'Ingresa el WhatsApp, la contraseña actual y una contraseña nueva de al menos 6 caracteres.',
+        });
+        return;
+      }
+
+      const administrator = await getAdministratorByPhone(phone);
+      if (!administrator || !verifyPassword(currentPassword, administrator.password_salt, administrator.password_hash)) {
+        sendJson(res, 401, { ok: false, message: 'WhatsApp o contraseña actual incorrectos.' });
+        return;
+      }
+
+      await setAdministratorPassword(administrator.administrator_id, newPassword);
+      sendJson(res, 200, { ok: true, message: 'Contraseña actualizada correctamente.' });
+    } catch (error) {
+      console.error('Unable to change administrator password:', error);
+      sendJson(res, 500, { ok: false, message: 'No pudimos cambiar la contraseña.' });
+    }
+    return;
+  }
+
   if (req.method === 'POST' && cleanPath === '/api/whatsapp/send') {
     try {
       const body = await readRequestBody(req);
@@ -1016,7 +1129,17 @@ const server = http.createServer(async (req, res) => {
   sendFile(res, staticPath);
 });
 
-server.listen(port, () => {
-  console.log(`Pura Vida volunteer network app running at http://localhost:${port}`);
-});
+async function startServer() {
+  try {
+    await ensureAdministratorPasswords();
+  } catch (error) {
+    console.error('Unable to initialize administrator passwords:', error);
+  }
+
+  server.listen(port, () => {
+    console.log(`Pura Vida volunteer network app running at http://localhost:${port}`);
+  });
+}
+
+startServer();
 

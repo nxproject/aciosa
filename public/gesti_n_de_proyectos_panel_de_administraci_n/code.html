@@ -339,6 +339,47 @@
 </div>
 </div>
 </div>
+<section class="px-margin-mobile md:px-margin-desktop pb-xl">
+<div class="bg-surface-container-low rounded-2xl p-lg border border-outline-variant shadow-sm">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary">admin_panel_settings</span>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Acceso de Administradores</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Contraseña inicial: puravida</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+<form id="adminLoginForm" class="space-y-md bg-surface rounded-xl p-md border border-outline-variant">
+<h3 class="font-title-lg text-title-lg text-on-surface">Verificar acceso</h3>
+<label class="block">
+<span class="font-label-bold text-label-bold text-on-surface">WhatsApp</span>
+<input class="mt-xs w-full rounded-xl border-outline bg-surface-container-low focus:ring-primary focus:border-primary" name="phone" placeholder="6270 8821" required type="tel"/>
+</label>
+<label class="block">
+<span class="font-label-bold text-label-bold text-on-surface">Contraseña</span>
+<input class="mt-xs w-full rounded-xl border-outline bg-surface-container-low focus:ring-primary focus:border-primary" name="password" required type="password"/>
+</label>
+<button class="w-full bg-primary text-on-primary rounded-xl py-sm font-button-text text-button-text hover:bg-primary-container transition-colors" type="submit">Verificar</button>
+</form>
+<form id="adminPasswordForm" class="space-y-md bg-surface rounded-xl p-md border border-outline-variant">
+<h3 class="font-title-lg text-title-lg text-on-surface">Cambiar contraseña</h3>
+<label class="block">
+<span class="font-label-bold text-label-bold text-on-surface">WhatsApp</span>
+<input class="mt-xs w-full rounded-xl border-outline bg-surface-container-low focus:ring-primary focus:border-primary" name="phone" placeholder="6270 8821" required type="tel"/>
+</label>
+<label class="block">
+<span class="font-label-bold text-label-bold text-on-surface">Contraseña actual</span>
+<input class="mt-xs w-full rounded-xl border-outline bg-surface-container-low focus:ring-primary focus:border-primary" name="currentPassword" required type="password"/>
+</label>
+<label class="block">
+<span class="font-label-bold text-label-bold text-on-surface">Nueva contraseña</span>
+<input class="mt-xs w-full rounded-xl border-outline bg-surface-container-low focus:ring-primary focus:border-primary" minlength="6" name="newPassword" required type="password"/>
+</label>
+<button class="w-full bg-secondary text-on-secondary rounded-xl py-sm font-button-text text-button-text hover:bg-secondary-container transition-colors" type="submit">Cambiar contraseña</button>
+</form>
+</div>
+</div>
+</section>
 </main>
 <!-- Footer -->
 <footer class="bg-surface-container-highest dark:bg-inverse-surface w-full px-margin-mobile md:px-margin-desktop py-xl flex flex-col md:flex-row justify-between items-center gap-md border-t border-outline-variant/20">
@@ -354,8 +395,56 @@
 <a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition-all" href="#">Privacidad</a>
 </div>
 </footer>
+<script src="/cc-notify.js"></script>
 <!-- Simple Interactivity for Row Highlight -->
 <script>
+        function notifyAdmin(message, type = 'info') {
+            if (window.notify && typeof window.notify[type] === 'function') {
+                window.notify[type](message);
+                return;
+            }
+            if (window.ccNotify && typeof window.ccNotify[type] === 'function') {
+                window.ccNotify[type](message);
+                return;
+            }
+            alert(message);
+        }
+
+        function wireAdminForm(formId, endpoint, successPrefix) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const button = form.querySelector('button[type="submit"]');
+                const originalText = button.textContent;
+                button.disabled = true;
+                button.textContent = 'Procesando...';
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams(new FormData(form)),
+                    });
+                    const result = await response.json();
+                    if (!response.ok || !result.ok) {
+                        throw new Error(result.message || 'No pudimos completar la acción.');
+                    }
+                    notifyAdmin(result.message || `${successPrefix} correctamente.`, 'success');
+                    if (formId === 'adminPasswordForm') {
+                        form.reset();
+                    }
+                } catch (error) {
+                    notifyAdmin(error.message, 'error');
+                } finally {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }
+            });
+        }
+
+        wireAdminForm('adminLoginForm', '/api/admin/login', 'Acceso verificado');
+        wireAdminForm('adminPasswordForm', '/api/admin/change-password', 'Contraseña actualizada');
+
         document.querySelectorAll('tbody tr').forEach(row => {
             row.addEventListener('click', (e) => {
                 if (!e.target.closest('button')) {

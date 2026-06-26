@@ -1,0 +1,4 @@
+ALTER TABLE administrators
+  ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255) NULL,
+  ADD COLUMN IF NOT EXISTS password_salt VARCHAR(64) NULL,
+  ADD COLUMN IF NOT EXISTS password_updated_at TIMESTAMP NULL;
