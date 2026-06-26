@@ -241,6 +241,56 @@ async function getVolunteerByPhone(phone) {
   return volunteers[0] || null;
 }
 
+async function getAdministratorByPhone(phone) {
+  const digits = localPhoneDigits(phone);
+  const [administrators] = await db.query(
+    `SELECT administrator_id, name, phone
+       FROM administrators
+      WHERE REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(phone, ''), ' ', ''), '-', ''), '(', ''), ')', '') IN (?, ?)
+      ORDER BY administrator_id DESC
+      LIMIT 1`,
+    [digits, `506${digits}`]
+  );
+
+  return administrators[0] || null;
+}
+
+async function getWhatsAppContact(phone) {
+  const [administrator, volunteer] = await Promise.all([
+    getAdministratorByPhone(phone),
+    getVolunteerByPhone(phone),
+  ]);
+
+  if (administrator) {
+    return {
+      role: 'admin',
+      name: administrator.name,
+      phone: administrator.phone,
+    };
+  }
+
+  if (volunteer) {
+    return {
+      role: 'volunteer',
+      name: volunteer.full_name,
+      phone: volunteer.phone,
+    };
+  }
+
+  return null;
+}
+
+function canSendWhatsAppMessage(sender, recipient) {
+  if (!sender || !recipient) return false;
+  if (sender.role === 'admin') {
+    return recipient.role === 'admin' || recipient.role === 'volunteer';
+  }
+  if (sender.role === 'volunteer') {
+    return recipient.role === 'admin';
+  }
+  return false;
+}
+
 async function getMatchedProjectsForVolunteer(volunteerId) {
   const [projects] = await db.query(
     `SELECT p.project_id, p.title, p.category, p.schedule_type, p.description,
@@ -788,11 +838,48 @@ const server = http.createServer(async (req, res) => {
     try {
       const body = await readRequestBody(req);
       const formData = new URLSearchParams(body);
+      const fromPhone = formValue(formData, 'fromPhone');
+      const toPhone = formValue(formData, 'phone');
+      if (!isCostaRicaPhone(fromPhone) || !isCostaRicaPhone(toPhone)) {
+        sendJson(res, 400, {
+          ok: false,
+          message: 'Ingresa números de WhatsApp válidos de Costa Rica en formato 8888 8888.',
+        });
+        return;
+      }
+
+      const [sender, recipient] = await Promise.all([
+        getWhatsAppContact(fromPhone),
+        getWhatsAppContact(toPhone),
+      ]);
+
+      if (!sender) {
+        sendJson(res, 403, { ok: false, message: 'El remitente no está registrado como administrador o voluntario.' });
+        return;
+      }
+      if (!recipient) {
+        sendJson(res, 404, { ok: false, message: 'El destinatario no está registrado como administrador o voluntario.' });
+        return;
+      }
+      if (!canSendWhatsAppMessage(sender, recipient)) {
+        sendJson(res, 403, {
+          ok: false,
+          message: 'Regla de WhatsApp: administradores pueden escribir a administradores y voluntarios; voluntarios solo pueden escribir a administradores.',
+          senderRole: sender.role,
+          recipientRole: recipient.role,
+        });
+        return;
+      }
+
       const result = await sendWhatsAppText(
-        formValue(formData, 'phone'),
+        toPhone,
         formValue(formData, 'message') || 'Mensaje de prueba desde Pura Vida y Mas.'
       );
-      sendJson(res, result.ok ? 200 : 502, result);
+      sendJson(res, result.ok ? 200 : 502, {
+        ...result,
+        sender,
+        recipient,
+      });
     } catch (error) {
       console.error('Unable to send WhatsApp message:', error);
       sendJson(res, 500, { ok: false, message: 'No pudimos enviar el mensaje de WhatsApp.' });
