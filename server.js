@@ -395,7 +395,7 @@ function renderAdminProjectRow(project) {
   const statusDotClass = project.status === 'draft' ? 'bg-secondary' : 'bg-primary animate-pulse';
   const createdAt = project.created_at ? new Date(project.created_at).toISOString().slice(0, 10) : 'Sin fecha';
 
-  return `<tr class="hover:bg-surface-container-low transition-colors group">
+  return `<tr class="hover:bg-surface-container-low transition-colors group cursor-pointer" data-detail-url="/proyectos/${encodeURIComponent(project.project_id)}">
 <td class="px-md py-lg">
 <div class="flex items-center gap-md">
 <div class="w-12 h-12 rounded-lg bg-cover bg-center shrink-0" data-alt="${escapeHtml(project.image_alt || project.title)}" style="background-image: url('${escapeHtml(project.image_url || '')}')"></div>
@@ -417,7 +417,8 @@ ${escapeHtml(status)}
 </td>
 <td class="px-md py-lg text-right">
 <div class="flex justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
-<a class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Ver / Editar" href="/admin/proyectos/${encodeURIComponent(project.project_id)}/editar"><span class="material-symbols-outlined">edit</span></a>
+<a class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Ver detalles" href="/proyectos/${encodeURIComponent(project.project_id)}"><span class="material-symbols-outlined">visibility</span></a>
+<a class="p-2 text-secondary hover:bg-secondary-fixed rounded-lg transition-all" title="Editar" href="/admin/proyectos/${encodeURIComponent(project.project_id)}/editar"><span class="material-symbols-outlined">edit</span></a>
 </div>
 </td>
 </tr>`;

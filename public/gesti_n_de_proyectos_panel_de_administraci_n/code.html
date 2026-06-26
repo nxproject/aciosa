@@ -221,7 +221,8 @@
 </td>
 <td class="px-md py-lg text-right">
 <div class="flex justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
-<a class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Editar" href="/admin/proyectos/1/editar"><span class="material-symbols-outlined">edit</span></a>
+<a class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Ver detalles" href="/proyectos/1"><span class="material-symbols-outlined">visibility</span></a>
+<a class="p-2 text-secondary hover:bg-secondary-fixed rounded-lg transition-all" title="Editar" href="/admin/proyectos/1/editar"><span class="material-symbols-outlined">edit</span></a>
 <button class="p-2 text-error hover:bg-error-container rounded-lg transition-all" title="Eliminar">
 <span class="material-symbols-outlined">delete</span>
 </button>
@@ -251,7 +252,8 @@
 </td>
 <td class="px-md py-lg text-right">
 <div class="flex justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
-<a class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Editar" href="/admin/proyectos/2/editar"><span class="material-symbols-outlined">edit</span></a>
+<a class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Ver detalles" href="/proyectos/2"><span class="material-symbols-outlined">visibility</span></a>
+<a class="p-2 text-secondary hover:bg-secondary-fixed rounded-lg transition-all" title="Editar" href="/admin/proyectos/2/editar"><span class="material-symbols-outlined">edit</span></a>
 <button class="p-2 text-error hover:bg-error-container rounded-lg transition-all" title="Eliminar">
 <span class="material-symbols-outlined">delete</span>
 </button>
@@ -281,7 +283,8 @@
 </td>
 <td class="px-md py-lg text-right">
 <div class="flex justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
-<a class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Editar" href="/admin/proyectos/3/editar"><span class="material-symbols-outlined">edit</span></a>
+<a class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Ver detalles" href="/proyectos/3"><span class="material-symbols-outlined">visibility</span></a>
+<a class="p-2 text-secondary hover:bg-secondary-fixed rounded-lg transition-all" title="Editar" href="/admin/proyectos/3/editar"><span class="material-symbols-outlined">edit</span></a>
 <button class="p-2 text-error hover:bg-error-container rounded-lg transition-all" title="Eliminar">
 <span class="material-symbols-outlined">delete</span>
 </button>
@@ -311,7 +314,8 @@
 </td>
 <td class="px-md py-lg text-right">
 <div class="flex justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
-<a class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Editar" href="/admin/proyectos/4/editar"><span class="material-symbols-outlined">edit</span></a>
+<a class="p-2 text-primary hover:bg-primary-container rounded-lg transition-all" title="Ver detalles" href="/proyectos/4"><span class="material-symbols-outlined">visibility</span></a>
+<a class="p-2 text-secondary hover:bg-secondary-fixed rounded-lg transition-all" title="Editar" href="/admin/proyectos/4/editar"><span class="material-symbols-outlined">edit</span></a>
 <button class="p-2 text-error hover:bg-error-container rounded-lg transition-all" title="Eliminar">
 <span class="material-symbols-outlined">delete</span>
 </button>
@@ -447,9 +451,11 @@
 
         document.querySelectorAll('tbody tr').forEach(row => {
             row.addEventListener('click', (e) => {
-                if (!e.target.closest('button')) {
-                    // Logic for selecting a row or showing details
-                    console.log('Project selected');
+                if (!e.target.closest('a, button')) {
+                    const detailUrl = row.dataset.detailUrl || row.querySelector('a[title="Ver detalles"]')?.href;
+                    if (detailUrl) {
+                        window.location.href = detailUrl;
+                    }
                 }
             });
         });
