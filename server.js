@@ -11,12 +11,41 @@ const openWa = {
   apiUrl: String(process.env.OPENWA_API_URL || 'http://openwa:8080').replace(/\/+$/, ''),
   apiKey: process.env.OPENWA_API_KEY || '',
 };
-const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'puravida';
-const seedAdministrators = [
-  { name: 'Administrador Demo', phone: '8888 0000' },
-  { name: 'Jose Gonzalez', phone: '6270 8821' },
-  { name: 'Carolina Masis', phone: '6047 9575' },
-];
+// The default admin password is intentionally NOT hardcoded. Provide it via the
+// DEFAULT_ADMIN_PASSWORD environment variable. If it is missing, a random
+// one-time password is generated per process and printed to the logs so a fresh
+// deployment is never seeded with a known, guessable credential.
+const defaultAdminPassword =
+  process.env.DEFAULT_ADMIN_PASSWORD || crypto.randomBytes(12).toString('base64url');
+const defaultAdminPasswordIsGenerated = !process.env.DEFAULT_ADMIN_PASSWORD;
+
+// Seed administrators come from the SEED_ADMINISTRATORS environment variable so
+// that real names and phone numbers never live in source control. Format is a
+// semicolon-separated list of "Name,Phone" pairs, e.g.
+//   SEED_ADMINISTRATORS="Administrador Demo,8888 0000;Otra Persona,8888 1111"
+function parseSeedAdministrators(value) {
+  return String(value || '')
+    .split(';')
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const commaIndex = entry.lastIndexOf(',');
+      if (commaIndex === -1) return null;
+      const name = entry.slice(0, commaIndex).trim();
+      const phone = entry.slice(commaIndex + 1).trim();
+      return name && phone ? { name, phone } : null;
+    })
+    .filter(Boolean);
+}
+
+const seedAdministrators = parseSeedAdministrators(process.env.SEED_ADMINISTRATORS);
+
+// Secret used to sign admin session tokens. A stable value across restarts keeps
+// sessions valid; if unset, a per-process random secret is used (sessions reset
+// on restart, which is safe but less convenient).
+const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+const sessionTtlMs = Number(process.env.SESSION_TTL_HOURS || 12) * 60 * 60 * 1000;
+const cookieSecure = String(process.env.COOKIE_SECURE || '').toLowerCase() === 'true';
 
 const routes = new Map([
   ['/', 'inicio_pura_vida_voluntarios/code.html'],
@@ -120,6 +149,111 @@ function verifyPassword(password, salt, hash) {
   const expected = Buffer.from(hash, 'hex');
   const actual = crypto.scryptSync(String(password), salt, expected.length);
   return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
+}
+
+// --- Admin session tokens -------------------------------------------------
+// Stateless, signed tokens: base64url(payloadJson).base64url(hmacSha256).
+// Payload carries the administrator id, phone, and an expiry timestamp.
+
+function signSessionPayload(payloadB64) {
+  return crypto.createHmac('sha256', sessionSecret).update(payloadB64).digest('base64url');
+}
+
+function createSessionToken(administrator) {
+  const payload = {
+    administratorId: administrator.administrator_id,
+    phone: administrator.phone,
+    exp: Date.now() + sessionTtlMs,
+  };
+  const payloadB64 = Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
+  return `${payloadB64}.${signSessionPayload(payloadB64)}`;
+}
+
+function verifySessionToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  const dotIndex = token.indexOf('.');
+  if (dotIndex === -1) return null;
+  const payloadB64 = token.slice(0, dotIndex);
+  const signature = token.slice(dotIndex + 1);
+  const expected = signSessionPayload(payloadB64);
+  const a = Buffer.from(signature);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  let payload;
+  try {
+    payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf8'));
+  } catch {
+    return null;
+  }
+  if (!payload || typeof payload.exp !== 'number' || payload.exp < Date.now()) return null;
+  return payload;
+}
+
+function parseCookies(req) {
+  const header = req.headers.cookie;
+  const cookies = {};
+  if (!header) return cookies;
+  for (const part of header.split(';')) {
+    const eq = part.indexOf('=');
+    if (eq === -1) continue;
+    const name = part.slice(0, eq).trim();
+    const value = part.slice(eq + 1).trim();
+    if (name) cookies[name] = decodeURIComponent(value);
+  }
+  return cookies;
+}
+
+const SESSION_COOKIE = 'aciosa_admin';
+
+function buildSessionCookie(token, maxAgeMs) {
+  const attrs = [
+    `${SESSION_COOKIE}=${encodeURIComponent(token)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Strict',
+    `Max-Age=${Math.floor(maxAgeMs / 1000)}`,
+  ];
+  if (cookieSecure) attrs.push('Secure');
+  return attrs.join('; ');
+}
+
+function clearSessionCookie() {
+  const attrs = [
+    `${SESSION_COOKIE}=`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Strict',
+    'Max-Age=0',
+  ];
+  if (cookieSecure) attrs.push('Secure');
+  return attrs.join('; ');
+}
+
+// Returns the authenticated admin session payload, or null. Accepts the session
+// cookie or, for API clients, an `Authorization: Bearer <token>` header.
+function getAdminSession(req) {
+  const cookies = parseCookies(req);
+  const cookieToken = cookies[SESSION_COOKIE];
+  let session = verifySessionToken(cookieToken);
+  if (session) return session;
+  const auth = req.headers.authorization || '';
+  if (auth.startsWith('Bearer ')) {
+    session = verifySessionToken(auth.slice(7).trim());
+    if (session) return session;
+  }
+  return null;
+}
+
+function requireAdmin(req, res) {
+  const session = getAdminSession(req);
+  if (session) return session;
+  if (String(req.headers.accept || '').includes('text/html')) {
+    res.writeHead(302, { Location: '/admin/login' });
+    res.end();
+  } else {
+    sendJson(res, 401, { ok: false, message: 'Acceso de administrador requerido.' });
+  }
+  return null;
 }
 
 async function ensureAdministratorPasswords() {
@@ -746,7 +880,7 @@ async function saveProjectEdit(projectId, req) {
         primaryCategory || 'Social',
         scheduleType || 'Recurrente',
         description,
-        'calendar_today',
+        formValue(formData, 'detail_icon') || 'calendar_today',
         detailText || scheduleType || 'Por definir',
         formValue(formData, 'image_url'),
         formValue(formData, 'image_alt') || title,
@@ -881,13 +1015,13 @@ async function renderProjectDetailPage(projectId) {
   return html;
 }
 
-function send(res, statusCode, content, contentType = 'text/plain; charset=utf-8') {
-  res.writeHead(statusCode, { 'Content-Type': contentType });
+function send(res, statusCode, content, contentType = 'text/plain; charset=utf-8', extraHeaders = {}) {
+  res.writeHead(statusCode, { 'Content-Type': contentType, ...extraHeaders });
   res.end(content);
 }
 
-function sendJson(res, statusCode, payload) {
-  send(res, statusCode, JSON.stringify(payload), 'application/json; charset=utf-8');
+function sendJson(res, statusCode, payload, extraHeaders = {}) {
+  send(res, statusCode, JSON.stringify(payload), 'application/json; charset=utf-8', extraHeaders);
 }
 
 function sendFile(res, filePath) {
@@ -975,11 +1109,16 @@ const server = http.createServer(async (req, res) => {
           phone: administrator.phone,
           password_updated_at: administrator.password_updated_at,
         },
-      });
+      }, { 'Set-Cookie': buildSessionCookie(createSessionToken(administrator), sessionTtlMs) });
     } catch (error) {
       console.error('Unable to verify administrator password:', error);
       sendJson(res, 500, { ok: false, message: 'No pudimos verificar el acceso.' });
     }
+    return;
+  }
+
+  if (req.method === 'POST' && cleanPath === '/api/admin/logout') {
+    sendJson(res, 200, { ok: true, message: 'Sesión cerrada.' }, { 'Set-Cookie': clearSessionCookie() });
     return;
   }
 
@@ -1015,15 +1154,19 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'POST' && cleanPath === '/api/whatsapp/send') {
+    const session = requireAdmin(req, res);
+    if (!session) return;
     try {
       const body = await readRequestBody(req);
       const formData = new URLSearchParams(body);
-      const fromPhone = formValue(formData, 'fromPhone');
+      // The sender is always the authenticated administrator; a client-supplied
+      // fromPhone is ignored so it cannot be spoofed.
+      const fromPhone = session.phone;
       const toPhone = formValue(formData, 'phone');
       if (!isCostaRicaPhone(fromPhone) || !isCostaRicaPhone(toPhone)) {
         sendJson(res, 400, {
           ok: false,
-          message: 'Ingresa números de WhatsApp válidos de Costa Rica en formato 8888 8888.',
+          message: 'Ingresa un número de WhatsApp válido de Costa Rica en formato 8888 8888.',
         });
         return;
       }
@@ -1113,7 +1256,20 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Public login page — serves the admin template so the login form is reachable
+  // without a session. The data-bearing widgets stay blank until authenticated.
+  if (req.method === 'GET' && cleanPath === '/admin/login') {
+    if (getAdminSession(req)) {
+      res.writeHead(302, { Location: '/admin' });
+      res.end();
+      return;
+    }
+    sendFile(res, path.join(publicDir, 'gesti_n_de_proyectos_panel_de_administraci_n/code.html'));
+    return;
+  }
+
   if (req.method === 'GET' && cleanPath === '/admin') {
+    if (!requireAdmin(req, res)) return;
     try {
       send(res, 200, await renderAdminPage(), 'text/html; charset=utf-8');
     } catch (error) {
@@ -1125,6 +1281,7 @@ const server = http.createServer(async (req, res) => {
 
   const projectEditMatch = cleanPath.match(/^\/admin\/proyectos\/(\d+)\/editar$/);
   if (projectEditMatch) {
+    if (!requireAdmin(req, res)) return;
     if (req.method === 'GET') {
       try {
         const html = await renderProjectEditPage(projectEditMatch[1]);
@@ -1197,6 +1354,21 @@ const server = http.createServer(async (req, res) => {
 });
 
 async function startServer() {
+  if (defaultAdminPasswordIsGenerated && seedAdministrators.length) {
+    console.warn(
+      `[aciosa] DEFAULT_ADMIN_PASSWORD not set. Seeded administrators use this ` +
+      `one-time generated password: ${defaultAdminPassword}\n` +
+      `[aciosa] Set DEFAULT_ADMIN_PASSWORD in the environment for a stable value, ` +
+      `and change it after first login.`
+    );
+  }
+  if (!process.env.SESSION_SECRET) {
+    console.warn(
+      '[aciosa] SESSION_SECRET not set — using a random per-process secret. ' +
+      'Admin sessions will be invalidated on restart. Set SESSION_SECRET for production.'
+    );
+  }
+
   try {
     await applyStartupSqlMigrations();
     await ensureAdministratorPasswords();

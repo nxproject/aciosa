@@ -3,17 +3,25 @@ services:
     build: .
     container_name: aciosa_app
     restart: unless-stopped
+    # Secrets are read from a .env file (see .env.example), never hardcoded here.
+    env_file:
+      - .env
     environment:
-      NODE_ENV: production
-      PORT: 3000
+      NODE_ENV: "${NODE_ENV:-production}"
+      PORT: "3000"
       DB_HOST: mariadb
-      DB_PORT: 3306
-      DB_NAME: aciosa
-      DB_USER: aciosa
-      DB_PASSWORD: aciosa_password
-      OPENWA_ENABLED: "true"
-      OPENWA_API_URL: http://openwa:8080
-      OPENWA_API_KEY: aciosa_openwa_key
+      DB_PORT: "3306"
+      DB_NAME: "${DB_NAME:-aciosa}"
+      DB_USER: "${DB_USER:-aciosa}"
+      DB_PASSWORD: "${DB_PASSWORD:?set DB_PASSWORD in .env}"
+      OPENWA_ENABLED: "${OPENWA_ENABLED:-true}"
+      OPENWA_API_URL: "${OPENWA_API_URL:-http://openwa:8080}"
+      OPENWA_API_KEY: "${OPENWA_API_KEY:?set OPENWA_API_KEY in .env}"
+      DEFAULT_ADMIN_PASSWORD: "${DEFAULT_ADMIN_PASSWORD:-}"
+      SESSION_SECRET: "${SESSION_SECRET:-}"
+      SESSION_TTL_HOURS: "${SESSION_TTL_HOURS:-12}"
+      COOKIE_SECURE: "${COOKIE_SECURE:-false}"
+      SEED_ADMINISTRATORS: "${SEED_ADMINISTRATORS:-}"
     depends_on:
       mariadb:
         condition: service_healthy
@@ -42,7 +50,7 @@ services:
       - --port
       - "8080"
       - --api-key
-      - aciosa_openwa_key
+      - "${OPENWA_API_KEY:?set OPENWA_API_KEY in .env}"
       - --session-id
       - aciosa
     ports:
@@ -55,10 +63,10 @@ services:
     container_name: aciosa_mariadb
     restart: unless-stopped
     environment:
-      MARIADB_DATABASE: aciosa
-      MARIADB_USER: aciosa
-      MARIADB_PASSWORD: aciosa_password
-      MARIADB_ROOT_PASSWORD: aciosa_root_password
+      MARIADB_DATABASE: "${DB_NAME:-aciosa}"
+      MARIADB_USER: "${DB_USER:-aciosa}"
+      MARIADB_PASSWORD: "${DB_PASSWORD:?set DB_PASSWORD in .env}"
+      MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD in .env}"
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./db/init:/docker-entrypoint-initdb.d:ro

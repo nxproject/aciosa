@@ -349,7 +349,7 @@
 <span class="material-symbols-outlined text-primary">admin_panel_settings</span>
 <div>
 <h2 class="font-headline-md text-headline-md text-on-surface">Acceso de Administradores</h2>
-<p class="font-body-md text-body-md text-on-surface-variant">Contraseña inicial: puravida</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Verifica tu acceso con tu WhatsApp y contraseña.</p>
 </div>
 </div>
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
@@ -436,6 +436,10 @@
                     notifyAdmin(result.message || `${successPrefix} correctamente.`, 'success');
                     if (formId === 'adminPasswordForm') {
                         form.reset();
+                    }
+                    if (formId === 'adminLoginForm') {
+                        // Session cookie is set; load the authenticated dashboard.
+                        setTimeout(() => { window.location.href = '/admin'; }, 400);
                     }
                 } catch (error) {
                     notifyAdmin(error.message, 'error');
