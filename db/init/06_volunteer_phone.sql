@@ -1,0 +1,2 @@
+ALTER TABLE volunteers
+  ADD COLUMN IF NOT EXISTS phone VARCHAR(40) NULL AFTER email;

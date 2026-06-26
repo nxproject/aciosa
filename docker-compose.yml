@@ -11,6 +11,9 @@ services:
       DB_NAME: aciosa
       DB_USER: aciosa
       DB_PASSWORD: aciosa_password
+      OPENWA_ENABLED: "true"
+      OPENWA_API_URL: http://openwa:8080
+      OPENWA_API_KEY: aciosa_openwa_key
     depends_on:
       mariadb:
         condition: service_healthy
@@ -27,6 +30,25 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
+
+  openwa:
+    image: openwa/wa-automate
+    container_name: aciosa_openwa
+    init: true
+    restart: unless-stopped
+    environment:
+      W_A_V: 4.76.0
+    command:
+      - --port
+      - "8080"
+      - --api-key
+      - aciosa_openwa_key
+      - --session-id
+      - aciosa
+    ports:
+      - "8081:8080"
+    volumes:
+      - openwa_data:/sessions
 
   mariadb:
     image: mariadb:11.4
@@ -48,3 +70,4 @@ services:
 
 volumes:
   mariadb_data:
+  openwa_data:

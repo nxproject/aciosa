@@ -5,6 +5,11 @@ const mysql = require('mysql2/promise');
 
 const port = Number(process.env.PORT) || 3000;
 const publicDir = path.join(__dirname, 'public');
+const openWa = {
+  enabled: String(process.env.OPENWA_ENABLED || '').toLowerCase() === 'true',
+  apiUrl: String(process.env.OPENWA_API_URL || 'http://openwa:8080').replace(/\/+$/, ''),
+  apiKey: process.env.OPENWA_API_KEY || '',
+};
 
 const routes = new Map([
   ['/', 'inicio_pura_vida_voluntarios/code.html'],
@@ -33,6 +38,100 @@ const db = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 5,
 });
+
+function normalizeWhatsAppTo(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  if (raw.includes('@')) return raw;
+  const digits = raw.replace(/[^\d]/g, '');
+  return digits ? `${digits}@c.us` : '';
+}
+
+async function openWaRequest(pathname, payload) {
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  if (openWa.apiKey) {
+    headers['X-API-Key'] = openWa.apiKey;
+    headers.Authorization = `Bearer ${openWa.apiKey}`;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3500);
+  let response;
+  try {
+    response = await fetch(`${openWa.apiUrl}${pathname}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+  const text = await response.text();
+  let body = text;
+  try {
+    body = text ? JSON.parse(text) : null;
+  } catch {
+    // Keep the raw OpenWA response for diagnostics.
+  }
+
+  if (!response.ok) {
+    const error = new Error(`OpenWA request failed with status ${response.status}`);
+    error.statusCode = response.status;
+    error.body = body;
+    throw error;
+  }
+
+  return body;
+}
+
+async function sendWhatsAppText(to, message) {
+  const chatId = normalizeWhatsAppTo(to);
+  if (!openWa.enabled) {
+    return { ok: false, skipped: true, reason: 'OpenWA is disabled.' };
+  }
+  if (!chatId) {
+    return { ok: false, skipped: true, reason: 'No WhatsApp number was provided.' };
+  }
+
+  const attempts = [
+    { to: chatId, content: message },
+    { args: { to: chatId, content: message } },
+    { args: [chatId, message] },
+  ];
+
+  let lastError;
+  for (const payload of attempts) {
+    try {
+      const result = await openWaRequest('/sendText', payload);
+      return { ok: true, chatId, result };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  return {
+    ok: false,
+    chatId,
+    error: lastError?.message || 'OpenWA did not accept the sendText request.',
+    detail: lastError?.body,
+  };
+}
+
+async function sendVolunteerWelcome(volunteer) {
+  const message = [
+    `Hola ${volunteer.fullName}, ¡pura vida!`,
+    'Gracias por registrarte en Pura Vida y Mas.',
+    volunteer.interests.length
+      ? `Tus intereses guardados son: ${volunteer.interests.join(', ')}.`
+      : 'Ya tenemos tu registro guardado.',
+    'Te contactaremos cuando haya proyectos que calcen contigo.',
+  ].join('\n');
+
+  return sendWhatsAppText(volunteer.phone, message);
+}
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -507,6 +606,7 @@ async function saveVolunteer(req) {
   const volunteer = {
     fullName: formValue(formData, 'name'),
     email: formValue(formData, 'email'),
+    phone: formValue(formData, 'phone'),
     ageRange: selectedAgeRanges.join(', '),
     ageRanges: selectedAgeRanges,
     interestIds: selectedInterestIds,
@@ -537,11 +637,12 @@ async function saveVolunteer(req) {
     volunteer.interests = validInterests.map((interest) => interest.name);
 
     const [result] = await connection.query(
-      `INSERT INTO volunteers (full_name, email, age_range, interests, availability, raw_payload)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO volunteers (full_name, email, phone, age_range, interests, availability, raw_payload)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         volunteer.fullName,
         volunteer.email,
+        volunteer.phone || null,
         volunteer.ageRange || null,
         JSON.stringify(volunteer.interests),
         volunteer.availability,
@@ -628,13 +729,15 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'POST' && cleanPath === '/registro') {
     try {
-      await saveVolunteer(req);
+      const volunteer = await saveVolunteer(req);
+      const whatsapp = await sendVolunteerWelcome(volunteer);
       send(
         res,
         200,
         JSON.stringify({
           ok: true,
           message: '¡Pura Vida! Gracias por registrarte. Nos pondremos en contacto contigo pronto.',
+          whatsapp,
         }),
         'application/json; charset=utf-8'
       );
@@ -646,6 +749,35 @@ const server = http.createServer(async (req, res) => {
         JSON.stringify({ ok: false, message: error.statusCode === 400 ? 'Faltan datos requeridos.' : 'No pudimos guardar el registro.' }),
         'application/json; charset=utf-8'
       );
+    }
+    return;
+  }
+
+  if (req.method === 'GET' && cleanPath === '/api/whatsapp/status') {
+    sendJson(res, 200, {
+      ok: true,
+      enabled: openWa.enabled,
+      apiUrl: openWa.apiUrl,
+      hasApiKey: Boolean(openWa.apiKey),
+      note: openWa.enabled
+        ? 'OpenWA está configurado. Escanea el QR del contenedor aciosa_openwa para conectar WhatsApp.'
+        : 'OpenWA está desactivado.',
+    });
+    return;
+  }
+
+  if (req.method === 'POST' && cleanPath === '/api/whatsapp/send') {
+    try {
+      const body = await readRequestBody(req);
+      const formData = new URLSearchParams(body);
+      const result = await sendWhatsAppText(
+        formValue(formData, 'phone'),
+        formValue(formData, 'message') || 'Mensaje de prueba desde Pura Vida y Mas.'
+      );
+      sendJson(res, result.ok ? 200 : 502, result);
+    } catch (error) {
+      console.error('Unable to send WhatsApp message:', error);
+      sendJson(res, 500, { ok: false, message: 'No pudimos enviar el mensaje de WhatsApp.' });
     }
     return;
   }
