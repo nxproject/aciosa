@@ -46,6 +46,45 @@ const db = mysql.createPool({
   connectionLimit: 5,
 });
 
+const startupSqlFiles = [
+  '01_projects.sql',
+  '02_volunteers.sql',
+  '03_interests.sql',
+  '04_project_edit_fields.sql',
+  '05_demo_projects.sql',
+  '06_volunteer_phone.sql',
+  '07_volunteer_phone_primary.sql',
+  '08_administrators.sql',
+  '09_administrator_passwords.sql',
+];
+
+function splitSqlStatements(sql) {
+  return sql
+    .replace(/^\uFEFF/, '')
+    .split(/;\s*(?:\r?\n|$)/)
+    .map((statement) => statement.trim())
+    .filter(Boolean);
+}
+
+async function applyStartupSqlMigrations() {
+  const initDir = path.join(__dirname, 'db', 'init');
+  for (const fileName of startupSqlFiles) {
+    const filePath = path.join(initDir, fileName);
+    let sql;
+    try {
+      sql = await fs.promises.readFile(filePath, 'utf8');
+    } catch (error) {
+      if (error.code === 'ENOENT') continue;
+      throw error;
+    }
+
+    const statements = splitSqlStatements(sql);
+    for (const statement of statements) {
+      await db.query(statement);
+    }
+  }
+}
+
 function normalizeWhatsAppTo(value) {
   const raw = String(value || '').trim();
   if (!raw) return '';
@@ -1159,9 +1198,10 @@ const server = http.createServer(async (req, res) => {
 
 async function startServer() {
   try {
+    await applyStartupSqlMigrations();
     await ensureAdministratorPasswords();
   } catch (error) {
-    console.error('Unable to initialize administrator passwords:', error);
+    console.error('Unable to apply database startup migrations:', error);
   }
 
   server.listen(port, () => {
