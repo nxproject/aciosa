@@ -16,3 +16,9 @@ SELECT 'Jose Gonzalez', '6270 8821'
 WHERE NOT EXISTS (
   SELECT 1 FROM administrators WHERE phone = '6270 8821'
 );
+
+INSERT INTO administrators (name, phone)
+SELECT 'Carolina Masis', '6047 9575'
+WHERE NOT EXISTS (
+  SELECT 1 FROM administrators WHERE phone = '6047 9575'
+);
