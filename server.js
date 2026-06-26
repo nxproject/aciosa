@@ -12,6 +12,11 @@ const openWa = {
   apiKey: process.env.OPENWA_API_KEY || '',
 };
 const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'puravida';
+const seedAdministrators = [
+  { name: 'Administrador Demo', phone: '8888 0000' },
+  { name: 'Jose Gonzalez', phone: '6270 8821' },
+  { name: 'Carolina Masis', phone: '6047 9575' },
+];
 
 const routes = new Map([
   ['/', 'inicio_pura_vida_voluntarios/code.html'],
@@ -80,11 +85,33 @@ function verifyPassword(password, salt, hash) {
 
 async function ensureAdministratorPasswords() {
   await db.query(
+    `CREATE TABLE IF NOT EXISTS administrators (
+       administrator_id INT AUTO_INCREMENT PRIMARY KEY,
+       name VARCHAR(255) NOT NULL,
+       phone VARCHAR(40) NOT NULL,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+     )`
+  );
+
+  await db.query(
     `ALTER TABLE administrators
        ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255) NULL,
        ADD COLUMN IF NOT EXISTS password_salt VARCHAR(64) NULL,
        ADD COLUMN IF NOT EXISTS password_updated_at TIMESTAMP NULL`
   );
+
+  for (const administrator of seedAdministrators) {
+    await db.query(
+      `INSERT INTO administrators (name, phone)
+       SELECT ?, ?
+        WHERE NOT EXISTS (
+          SELECT 1
+            FROM administrators
+           WHERE REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(phone, ''), ' ', ''), '-', ''), '(', ''), ')', '') = ?
+        )`,
+      [administrator.name, administrator.phone, localPhoneDigits(administrator.phone)]
+    );
+  }
 
   const [administrators] = await db.query(
     `SELECT administrator_id
